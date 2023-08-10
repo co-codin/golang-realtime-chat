@@ -2,7 +2,10 @@ package user
 
 import (
 	"context"
+	"strconv"
 	"time"
+
+	"github.com/co-codin/golang-realtime-chat/util"
 )
 
 type service struct {
@@ -18,7 +21,33 @@ func NewService(repository Repository) Service {
 }
 
 func (s *service) CreateUser(c context.Context, req *CreateUserReq) (*CreateUserRes, error) {
-	return nil, nil
+	ctx, cancel := context.WithTimeout(c, s.timeout)
+	defer cancel()
+
+	hashedPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	u := &User{
+		Username: req.Username,
+		Email:    req.Email,
+		Password: hashedPassword,
+	}
+
+	r, err := s.Repository.CreateUser(ctx, u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := &CreateUserRes{
+		ID:       strconv.Itoa(int(r.ID)),
+		Username: r.Username,
+		Email:    r.Email,
+	}
+
+	return res, nil
 }
 
 func (s *service) Login(c context.Context, req *LoginUserReq) (*LoginUserRes, error) {
