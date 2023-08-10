@@ -11,3 +11,19 @@ type DBTX interface {
 	QueryContext(context.Context, string, ...interface{}) (*sql.Rows, error)
 	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
 }
+
+type repository struct {
+	db DBTX
+}
+
+func NewRepository(db DBTX) Repository {
+	return &repository{db: db}
+}
+
+func (r *repository) CreateUser(ctx context.Context, user *User) (*User, error) {
+	return nil, nil
+}
+
+func (r *repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	return nil, nil
+}
