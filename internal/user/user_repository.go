@@ -30,7 +30,8 @@ func (r *repository) CreateUser(ctx context.Context, user *User) (*User, error) 
 		return &User{}, err
 	}
 
-	return nil, nil
+	user.ID = int64(lastInsertId)
+	return user, nil
 }
 
 func (r *repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
