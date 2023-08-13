@@ -5,6 +5,7 @@ import (
 
 	"github.com/co-codin/golang-realtime-chat/db"
 	"github.com/co-codin/golang-realtime-chat/internal/user"
+	"github.com/co-codin/golang-realtime-chat/internal/ws"
 	"github.com/co-codin/golang-realtime-chat/router"
 )
 
@@ -19,6 +20,10 @@ func main() {
 	userSvc := user.NewService(userRep)
 	userHandler := user.NewHandler(userSvc)
 
-	router.InitRouter(userHandler)
+	hub := ws.NewHub()
+	wsHandler := ws.NewHandler(hub)
+
+
+	router.InitRouter(userHandler, wsHandler)
 	router.Start("0.0.0.0:8080")
 }

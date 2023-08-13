@@ -18,7 +18,7 @@ func NewHandler(h *Hub) *Handler {
 
 type CreateRoomReq struct {
 	ID string `json:"id"`
-	Name string `json:"name`
+	Name string `json:"name"`
 }
 
 func (h *Handler) CreateRoom(c *gin.Context) {
