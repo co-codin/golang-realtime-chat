@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 type Handler struct {
@@ -36,4 +37,43 @@ func (h *Handler) CreateRoom(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, req)
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+func (h *Handler) JoinRoom(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	roomID := c.Param("roomId")
+	clientID := c.Query("userId")
+	username := c.Query("username")
+
+	cl := &Client{
+		Conn: conn,
+		Message: make(chan *Message, 10),
+		ID: clientID,
+		Username: username,
+		RoomID: roomID,
+	}
+
+	m := &Message{
+		Content: "A new user has joined the room",
+		RoomID: roomID,
+		Username: username,
+	}
+
+	h.hub.Register <- cl
+
+	h.hub.Broadcast <- m
 }
